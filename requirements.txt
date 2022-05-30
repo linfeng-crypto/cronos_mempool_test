@@ -1,0 +1,5 @@
+pystarport==0.2.4
+eth-account==0.5.7
+python-dotenv==0.20.0
+py-solc-x==1.1.1
+web3==5.29.1
