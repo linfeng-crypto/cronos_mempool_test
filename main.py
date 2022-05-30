@@ -1,8 +1,9 @@
-import time
-from pprint import pprint
-from pathlib import Path
-from util import ADDRS, sign_transaction, deploy_contract, Cronos
 import threading
+import time
+from pathlib import Path
+from pprint import pprint
+
+from util import ADDRS, Cronos, deploy_contract, sign_transaction
 
 
 class Runner(object):
@@ -47,11 +48,7 @@ class Runner(object):
             def _set_greeting(nonce):
                 tx = self.contract.functions.setGreeting("abc").buildTransaction(
                     # TODO: set gasPrice instead of using the default
-                    {
-                        "from": sender,
-                        "nonce": nonce,
-                        "gas": self.contract_gas_limit
-                    }
+                    {"from": sender, "nonce": nonce, "gas": self.contract_gas_limit}
                 )
                 signed = sign_transaction(self.w3, tx, key)
                 tx_hash = self.w3.eth.send_raw_transaction(signed.rawTransaction)
@@ -65,15 +62,15 @@ class Runner(object):
                     self.total_contract_txs += 1
                     time.sleep(0.01)
                 except Exception as e:
-                    print("send contract tx error:",  e)
+                    print("send contract tx error:", e)
                     break
-
 
     def transfer_tokens(self, keys=["signer1", "signer2"]):
         # gas_price = self.w3.eth.gas_price
         for key in keys:
             sender = ADDRS[key]
             nonce_start = self.w3.eth.get_transaction_count(sender)
+
             def _transfer(nonce):
                 tx = {
                     "to": "0x0000000000000000000000000000000000000000",
@@ -99,11 +96,11 @@ class Runner(object):
     def check_status(self):
         default_status = {}
         last_height = self.w3.eth.block_number
-        last_block = self.w3.eth.get_block('latest')
+        last_block = self.w3.eth.get_block("latest")
         while True:
             current_height = self.w3.eth.block_number
             if current_height > last_height:
-                current_block = self.w3.eth.get_block('latest')
+                current_block = self.w3.eth.get_block("latest")
                 mined_txs = current_block.transactions
                 for tx in mined_txs:
                     try:
@@ -121,14 +118,19 @@ class Runner(object):
                 status["block_time_use"] = f"{time_delta}s"
                 status["mempool_normal_txs"] = len(self.transfer_token_txs)
                 status["mempool_contract_txs"] = len(self.contract_txs)
-                status["mempool_total_txs"] = len(self.transfer_token_txs) + len(self.contract_txs)
+                status["mempool_total_txs"] = len(self.transfer_token_txs) + len(
+                    self.contract_txs
+                )
                 status["block_gas_limit"] = current_block.gasLimit
-                status["block_gas_used"] = f"{current_block.gasUsed} ({current_block.gasUsed*100.0/current_block.gasLimit}%)"
+                status[
+                    "block_gas_used"
+                ] = f"{current_block.gasUsed} ({current_block.gasUsed*100.0/current_block.gasLimit}%)"
                 status["block_txs"] = len(mined_txs)
                 pprint(status)
                 last_height = current_height
                 last_block = current_block
             time.sleep(1)
+
 
 def test():
     data_path = Path("./cronos_data")
@@ -140,6 +142,6 @@ def test():
     t2.start()
     runner.check_status()
 
+
 if __name__ == "__main__":
     test()
-

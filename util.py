@@ -1,16 +1,16 @@
-import os
 import json
-import web3
+import os
+from pathlib import Path
 
+import web3
 from dotenv import load_dotenv
 from eth_account import Account
-from pathlib import Path
-from solcx import compile_source, install_solc
 from pystarport import ports
+from solcx import compile_source, install_solc
 from web3._utils.transactions import fill_nonce, fill_transaction_defaults
 
 try:
-    install_solc(version='latest')
+    install_solc(version="latest")
 except:
     pass
 load_dotenv(Path(__file__).parent / "scripts/.env")
@@ -22,6 +22,7 @@ ACCOUNTS = {
     "signer2": Account.from_mnemonic(os.getenv("SIGNER2_MNEMONIC")),
 }
 ADDRS = {name: account.address for name, account in ACCOUNTS.items()}
+
 
 class Cronos:
     def __init__(self, base_dir):
@@ -87,11 +88,12 @@ def deploy_contract(w3, sol_file):
     def compile_sol():
         with open(sol_file) as f:
             contract_str = f.read()
-            compiled_sol = compile_source(contract_str,  output_values=['abi', 'bin'])
+            compiled_sol = compile_source(contract_str, output_values=["abi", "bin"])
             contract_id, contract_interface = compiled_sol.popitem()
-            bytecode = contract_interface['bin']
-            abi = contract_interface['abi']
+            bytecode = contract_interface["bin"]
+            abi = contract_interface["abi"]
             return [bytecode, abi]
+
     [bin, abi] = compile_sol()
     w3.eth.default_account = w3.eth.accounts[0]
     contract = w3.eth.contract(abi=abi, bytecode=bin)

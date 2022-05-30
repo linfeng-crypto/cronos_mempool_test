@@ -9,7 +9,8 @@ This test cause is used to tress test the mempool, sending token transfer tx and
 # test result
 mempool will full when the pending transactions up to nearly 5000, send tx will get error message: `mempool is full`
 what ever how many pending transaction is, the block mined time is always 5s or 6s which is same as set by `timeout_commit` in genesis.
-```json
+
+```
 {'block_gas_limit': 20000000,
  'block_gas_used': '1594395 (7.971975%)',
  'block_time_use': '5s',
